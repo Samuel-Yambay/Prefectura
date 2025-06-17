@@ -1,0 +1,111 @@
+---
+import Welcome from '../components/Welcome.astro';
+import Layout from '../layouts/Layout.astro';
+import LoginForm from '../components/LoginForm.astro';
+
+// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
+// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const script = `
+  document.addEventListener('DOMContentLoaded', async () => {
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm');
+    
+    const supabase = createClient(
+      '${import.meta.env.PUBLIC_SUPABASE_URL}',
+      '${import.meta.env.PUBLIC_SUPABASE_ANON_KEY}'
+    );
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorText = document.getElementById('error');
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        errorText.textContent = error.message;
+      } else {
+        window.location.href = '/dashboard';
+      }
+    });
+  });
+`;
+---
+<!--h1>Iniciar sesión1</h1>
+<form id="login-form">
+  <input id="email" type="email" placeholder="Email" required />
+  <input id="password" type="password" placeholder="Contraseña" required />
+  <button type="submit">Entrar</button>
+  <p id="error" style="color: red;"></p>
+</form-->
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inicio | Chimborazo GAD</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      body {
+        background-image: url('../images/Principal.PNG');
+        background-size: cover;
+        background-position: right center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding-left: 14rem;
+      }
+      .overlay {
+        background-color: rgba(0, 0, 0, 0.6);
+        padding: 3rem;
+        border-radius: 20px;
+        text-align: center;
+        color: white;
+        max-width: 400px;
+        width: 100%;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+      }
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+      .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+      .btn {
+        padding: 0.75rem 1rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        background-color: #0077cc;
+        color: white;
+        text-decoration: none;
+      }
+      .btn:hover {
+        background-color: #005fa3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="overlay">
+      <h1>Bienvenido al GAD Provincial Chimborazo</h1>
+      <div class="btn-group">
+        <a href="/signin" class="btn">Iniciar Sesión</a>
+        <!--a href="/reporte" class="btn">Reporte</a-->
+        <a href="https://drive.google.com/drive/folders/1pCdLpMYkc0LuTLon9OdR9sefd0s9sJjd?usp=sharing"  target="_blank" class="btn"> Ver Reporte</a>
+      </div> 
+      </div>
+    </div>
+  </body>
+</html>
+
+

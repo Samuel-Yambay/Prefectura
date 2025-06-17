@@ -1,0 +1,100 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabaseClient';
+
+const accessToken = Astro.cookies.get('sb-access-token');
+const refreshToken = Astro.cookies.get('sb-refresh-token');
+
+if (!accessToken || !refreshToken) {
+  return Astro.redirect('/signin');
+}
+
+let session;
+try {
+  session = await supabase.auth.setSession({
+    refresh_token: refreshToken.value,
+    access_token: accessToken.value,
+  });
+
+  if (session.error) {
+    Astro.cookies.delete('sb-access-token', { path: '/' });
+    Astro.cookies.delete('sb-refresh-token', { path: '/' });
+    return Astro.redirect('/signin');
+  }
+} catch (error) {
+  Astro.cookies.delete('sb-access-token', { path: '/' });
+  Astro.cookies.delete('sb-refresh-token', { path: '/' });
+  return Astro.redirect('/signin');
+}
+
+const email = session.data.user?.email;
+// 1. Obtén el enlace de EMBED del Google Form.
+// Ve a tu Google Form, haz clic en "Enviar", luego en la pestaña "<>" (embed/incrustar),
+// y copia el código HTML del iframe. Necesitarás el atributo `src`.
+// Ejemplo: "https://docs.google.com/forms/d/e/TU_ID_DE_FORMULARIO/viewform?embedded=true"
+//
+// 2. Para ocultar los menús y herramientas de Google Sheets (no de Google Forms):
+// Si el iframe fuera directamente una hoja de cálculo, podrías intentar añadir
+// `&rm=minimal` al final de la URL si se trata de un documento de Google Sheets
+// para "minimizar" la interfaz. Sin embargo, para **Google Forms**,
+// el `embedded=true` ya hace gran parte del trabajo de mostrar solo el formulario.
+// Si lo que realmente querías era incrustar una HOJA DE CÁLCULO sin menús,
+// la URL sería diferente y se añadiría `&rm=minimal` y posiblemente `&headers=false&chrome=false`.
+//
+// **Dado que estás incrustando un FORMULARIO de Google (viewform?embedded=true),
+// este ya está diseñado para mostrar solo el formulario.**
+// Si el enlace que proporcionaste
+// `https://docs.google.com/spreadsheets/d/10c2rUQnxlfuBsFyAj8kxuhkPUNFk6fPqnnQ2EWFCL5I/edit?usp=sharing/viewform?embedded=true`
+// es en realidad un enlace a una HOJA DE CÁLCULO, necesitas primero CREAR un Google Form
+// a partir de esa hoja o con datos para ella, y luego obtener el enlace de incrustación de ese *formulario*.
+//
+// **Asumiendo que el enlace anterior es un ERROR y que realmente es un Google Form,
+// aquí está el formato correcto. Reemplaza `TU_ID_DE_FORMULARIO` con el ID real de tu form.**
+const googleFormEmbedUrl = "https://docs.google.com/forms/d/e/TU_ID_DE_FORMULARIO/viewform?embedded=true";
+---
+
+<Layout title="Dashboard">
+  <section style="padding: 2rem; max-width: 960px; margin: 0 auto;">
+    <h1 style="font-size: 2rem; font-weight: bold; color: #333;">Bienvenido, {email}</h1>
+    <form action="/api/auth/signout" method="post" style="margin-bottom: 2rem;">
+      <button type="submit" style="
+        padding: 0.75rem 1.5rem;
+        background-color: #e63946;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s ease;
+      " onmouseover="this.style.backgroundColor='#d62828'" onmouseout="this.style.backgroundColor='#e63946'">
+        Cerrar sesión
+      </button>
+      <button type="submit" style="
+        padding: 0.75rem 1.5rem;
+        background-color: #e63946;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s ease;
+      " onmouseover="this.style.backgroundColor='#d62828'" onmouseout="this.style.backgroundColor='#e63946'">
+        Ver Reporte
+      </button>
+    </form>
+
+    <section style="background: #f9f9f9; border-radius: 12px; padding: 2rem; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
+      <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Área de Registros</h2>
+      <iframe
+        src="https://docs.google.com/spreadsheets/d/10c2rUQnxlfuBsFyAj8kxuhkPUNFk6fPqnnQ2EWFCL5I/edit?usp=sharing?widget=false&headers=false&rm=minimal&single=true&embedded=true#gid=104705847"
+        width="100%"
+        height="500"
+        style="border: none; border-radius: 8px;"
+        allowfullscreen>
+        Cargando…
+      </iframe>
+    </section>
+  </section>
+</Layout>
+
+
