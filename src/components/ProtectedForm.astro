@@ -1,0 +1,17 @@
+---
+import { supabase } from '../lib/supabaseClient';
+
+const { data: { user } } = await supabase.auth.getUser();
+
+if (!user) {
+  Astro.redirect('/');
+}
+---
+
+<h2>Bienvenido, {user.email}</h2>
+<form>
+  <!-- Aquí tu formulario protegido -->
+  <label>Dato:</label>
+  <input type="text" />
+  <button type="submit">Enviar</button>
+</form>

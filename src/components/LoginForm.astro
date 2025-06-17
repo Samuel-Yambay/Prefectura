@@ -1,0 +1,44 @@
+---
+const script = `
+  document.addEventListener('DOMContentLoaded', async () => {
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm');
+
+    const supabase = createClient('${import.meta.env.SUPABASE_URL}', '${import.meta.env.SUPABASE_ANON_KEY}');
+
+    const form = document.getElementById('login-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorDisplay = document.getElementById('error');
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        errorDisplay.textContent = error.message;
+      } else {
+        window.location.href = '/dashboard';
+      }
+    });
+  });
+`;
+---
+
+<form id="login-form">
+  <label>Email:</label>
+  <input type="email" id="email" required />
+
+  <label>Password:</label>
+  <input type="password" id="password" required />
+
+  <button type="submit">Login</button>
+  <p id="error" style="color:red;"></p>
+</form>
+
+<script is:inline>
+  {script}
+</script>
