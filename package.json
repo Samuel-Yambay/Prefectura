@@ -1,0 +1,17 @@
+{
+  "name": "sis-hgadpch",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/vercel": "^8.1.5",
+    "@supabase/supabase-js": "^2.49.8",
+    "astro": "^5.9.3",
+    "jspdf": "^3.0.1"
+  }
+}
