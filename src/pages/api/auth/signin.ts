@@ -1,22 +1,20 @@
-import type { APIRoute } from "astro";
-import { supabase } from "../../../lib/supabaseClient";
-
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-  const url  = new URL(request.url);
-  const next = url.searchParams.get("next") || "/";
+import { createClient } from '@supabase/supabase-js';
 
-  const form = await request.formData();
-  const email = String(form.get("email") || "");
-  const password = String(form.get("password") || "");
+export async function GET({ url }: any) {
+  const supabase = createClient(
+    process.env.PUBLIC_SUPABASE_URL!,
+    process.env.PUBLIC_SUPABASE_ANON_KEY!
+  );
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error || !data.session) return redirect("/signin");
+  const provider = url.searchParams.get('provider') ?? 'google';
 
-  cookies.set("sb-access-token", data.session.access_token, { path:"/", httpOnly:true, sameSite:"lax", secure:false });
-  cookies.set("sb-refresh-token", data.session.refresh_token, { path:"/", httpOnly:true, sameSite:"lax", secure:false });
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: { redirectTo: `${url.origin}/api/auth/callback` }
+  });
 
-  // SIEMPRE vuelve al index (o a lo que diga next)
-  return redirect(next);
-};
+  if (error) return new Response(error.message, { status: 500 });
+  return Response.redirect(data.url, 302);
+}
