@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.8",
-    "astro": "^5.9.3",
     "jspdf": "^3.0.1"
   },
   "devDependencies": {
-    "@astrojs/vercel": "^9.0.0"
+    "@astrojs/vercel": "^9.0.0",
+    "astro": "^5.15.1"
   }
 }
