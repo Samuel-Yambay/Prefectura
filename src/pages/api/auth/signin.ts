@@ -1,33 +1,22 @@
+import type { APIRoute } from "astro";
+import { supabase } from "../../../lib/supabaseClient";
+
 export const prerender = false;
-import type { APIRoute } from 'astro';
-import { supabase } from '../../../lib/supabaseClient';
-//console.log('📂 signin.ts cargado');
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-  //console.log('POST /api/auth/signin received');
-  const formData = await request.formData();
-  const email = formData.get('email')?.toString();
-  const password = formData.get('password')?.toString();
-  
-  //console.log('📥 Email:', email);
-  //console.log('📥 Password:', password);
+  const url  = new URL(request.url);
+  const next = url.searchParams.get("next") || "/";
 
-  if (!email || !password) {
-    //console.log('❌ Falta email o password');
-    return new Response('Email and password are required', { status: 400 });
-  }
+  const form = await request.formData();
+  const email = String(form.get("email") || "");
+  const password = String(form.get("password") || "");
 
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error || !data.session) return redirect("/signin");
 
-  if (error || !data.session) {
-    //console.log('❌ Error de login:', error?.message);
-    return new Response(error?.message || 'Login failed', { status: 401 });
-  }
+  cookies.set("sb-access-token", data.session.access_token, { path:"/", httpOnly:true, sameSite:"lax", secure:false });
+  cookies.set("sb-refresh-token", data.session.refresh_token, { path:"/", httpOnly:true, sameSite:"lax", secure:false });
 
-  const { session } = data;
-
-  cookies.set('sb-access-token', session.access_token, { path: '/', httpOnly: true, secure: true });
-  cookies.set('sb-refresh-token', session.refresh_token, { path: '/', httpOnly: true, secure: true });
-  //console.log('✅ Login exitoso. Redirigiendo a /dashboard');
-  return redirect('/dashboard');
+  // SIEMPRE vuelve al index (o a lo que diga next)
+  return redirect(next);
 };

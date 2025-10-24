@@ -1,15 +1,17 @@
 ---
 export const prerender = false;
-//console.log('👀 Cargando página de inicio de sesión');
-import Layout from '../layouts/Layout.astro';
-const { cookies, redirect } = Astro;
-const accessToken = cookies.get('sb-access-token');
-const refreshToken = cookies.get('sb-refresh-token');
-import bgImage from '../images/Prefectura.PNG';
-if (accessToken && refreshToken) {
-  return redirect('/dashboard');
+
+const { cookies, redirect, url } = Astro;
+
+const accessToken  = cookies.get("sb-access-token");
+const refreshToken = cookies.get("sb-refresh-token");
+const next = new URL(url).searchParams.get("next") || "/";
+
+if (accessToken?.value && refreshToken?.value) {
+  return redirect(next);
 }
 ---
+
 <!DOCTYPE html>
 <html lang="es">
   <head>
@@ -17,13 +19,7 @@ if (accessToken && refreshToken) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Inicio de Sesión | Prefectura de Chimborazo</title>
     <style>
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      }
-
+      * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
       body {
         background-image: url('../images/Prefectura.PNG');
         background-size: cover;
@@ -33,10 +29,9 @@ if (accessToken && refreshToken) {
         display: flex;
         justify-content: flex-end;
         align-items: center;
-        background-color: #001f3f; /* Fallback color */
+        background-color: #001f3f;
         padding: 2rem;
       }
-
       .form-container {
         background-color: rgba(255, 255, 255, 0.95);
         padding: 2rem 3rem;
@@ -44,92 +39,45 @@ if (accessToken && refreshToken) {
         width: 100%;
         max-width: 400px;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-        margin-right: 4rem; /* distancia del borde derecho */
+        margin-right: 4rem;
       }
-
-      h1 {
-        font-size: 1.8rem;
-        color: #002e5f;
-        margin-bottom: 1.2rem;
-      }
-
-      p {
-        margin-bottom: 1.5rem;
-        color: #333;
-      }
-
-      a {
-        color: #0077cc;
-        text-decoration: none;
-      }
-
-      a:hover {
-        text-decoration: underline;
-      }
-
-      label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: bold;
-        color: #333;
-      }
-
+      h1 { font-size: 1.8rem; color: #002e5f; margin-bottom: 1.2rem; }
+      p { margin-bottom: 1.5rem; color: #333; }
+      a { color: #0077cc; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      label { display: block; margin-bottom: 0.5rem; font-weight: bold; color: #333; }
       input {
-        width: 100%;
-        padding: 0.6rem;
-        margin-bottom: 1.2rem;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        font-size: 1rem;
+        width: 100%; padding: 0.6rem; margin-bottom: 1.2rem; border-radius: 8px;
+        border: 1px solid #ccc; font-size: 1rem;
       }
-
       button {
-        width: 100%;
-        padding: 0.75rem;
-        background-color: #0077cc;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: background 0.3s ease;
+        width: 100%; padding: 0.75rem; background-color: #0077cc; color: white;
+        border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: background .3s ease;
       }
-
-      button:hover {
-        background-color: #005fa3;
+      button:hover { background-color: #005fa3; }
+      .link-inicio { margin-top: 1rem; text-align: center; }
+      .link-inicio a {
+        color: #0077cc; text-decoration: none; font-weight: bold; display: inline-block;
+        padding: 0.5rem 1rem; border-radius: 6px; transition: background-color .3s ease;
       }
-      .link-inicio {
-  margin-top: 1rem;
-  text-align: center;
-}
-
-.link-inicio a {
-  color: #0077cc;
-  text-decoration: none;
-  font-weight: bold;
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  transition: background-color 0.3s ease;
-}
-
-.link-inicio a:hover {
-  background-color: #f0f0f0;
-}
-
+      .link-inicio a:hover { background-color: #f0f0f0; }
     </style>
   </head>
   <body>
-    <div class="form-container" >
-      <h1>Iniciar Sesión</h1>
+    <div class="form-container">
+      <!-- Aquí estaba el problema -->
+      <h1>Inicio de Sesión</h1>
+
       <form action="/api/auth/signin" method="post">
+        <input type="hidden" name="next" value={next} />
+
         <label for="email">Correo Electrónico</label>
-        <input type="email" name="email" id="email" required />
+        <input type="email" name="email" id="email" required autocomplete="email" autofocus />
 
         <label for="password">Contraseña</label>
-        <input type="password" name="password" id="password" required />
+        <input type="password" name="password" id="password" required autocomplete="current-password" />
 
-        <button type="submit">Iniciar sesión</button>
+        <button type="submit">iniciar sesión</button>
 
         <div class="link-inicio">
           <a href="/">Ir a Página de Inicio</a>

@@ -1,5 +1,5 @@
 ---
-// src/pages/reporte.astro
+
 import Layout from '../layouts/Layout.astro'; 
 ---
 <html lang="es">
@@ -294,6 +294,8 @@ import Layout from '../layouts/Layout.astro';
           },
           alternateRowStyles: { fillColor: [20, 30, 70] }
         });
+          const finalY = doc.lastAutoTable.finalY + 20;
+          doc.text('Responsable: ____________________________', 20, finalY);
 
         doc.save('asignaciones.pdf');
       }

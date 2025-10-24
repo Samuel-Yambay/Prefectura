@@ -1,0 +1,183 @@
+---
+import fondoUrl from "../images/LOGO TRANSF_DIGITAL.png?url";
+import portadaUrl from "../images/images.png?url";
+const BASE = import.meta.env.BASE_URL;
+
+/* ===== IDs / URLs ===== */
+const SHEET_ID  = "1pi90_spuR74P1xPBkHC3bqsl54kRi3NV61qzcJa1rxc";
+const SHEET_GID = "0";
+const DOC_ID    = "1r9-UFsBS0_x0U4y5nKbhK1cLYKmM9JZ6qT-GHXdp9LU";
+
+/* Google Forms (tuyo) */
+const FORM_EMBED_ID = "1FAIpQLSfXk6XFoqM7h7pHMWeSvRDhu068WYfgRo1A2boI0CYZkEOZig"; // <- el que me pasaste
+const FORM_EDIT_ID  = ""; // si luego tienes el ID de edición, ponlo aquí
+
+/* Ver en visor (iframe) */
+const SHEET_VIEW_URL =
+  `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit?usp=sharing&widget=false&headers=false&rm=minimal&single=true&embedded=true#gid=${SHEET_GID}`;
+const DOC_VIEW_URL   = `https://docs.google.com/document/d/${DOC_ID}/preview`;
+const FORM_VIEW_URL  = `https://docs.google.com/forms/d/e/${FORM_EMBED_ID}/viewform?embedded=true`;
+
+/* Edición en pestaña nueva */
+const SHEET_EDIT_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit#gid=${SHEET_GID}`;
+const DOC_EDIT_URL   = `https://docs.google.com/document/d/${DOC_ID}/edit#gid=${SHEET_GID}`;
+const FORM_EDIT_URL  = FORM_EDIT_ID ? `https://docs.google.com/forms/d/${FORM_EDIT_ID}/edit` : null;
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Área de trabajo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+      :root{ --ring:1px solid rgba(255,255,255,.55); --glass:rgba(255,255,255,.14); }
+      html,body{ margin:0; background:#0b1736; font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+
+      .topbar{
+        position:sticky; top:0; z-index:50; background:rgba(13,27,56,.78);
+        border-bottom:1px solid rgba(255,255,255,.12); backdrop-filter:blur(10px) saturate(120%);
+      }
+
+      .page-title-wrap{ position:relative; z-index:49; background:transparent; padding:10px 0 0; }
+      .page-title-wrap .title{ color:#fff; font-weight:800; letter-spacing:-.02em; }
+
+      .stage{ position:relative; isolation:isolate; min-height:100svh; overflow:hidden; }
+      .stage > img.bg{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; filter:saturate(1.05); }
+
+      .work{ position:relative; z-index:1; padding-block:18px 28px; }
+      .sheet-card{
+        position:relative; background:var(--glass); border:var(--ring); border-radius:18px;
+        backdrop-filter:blur(8px) saturate(130%); box-shadow:0 16px 46px rgba(0,0,0,.25); overflow:hidden;
+      }
+      .sheet-frame{ width:100%; height:calc(100svh - 190px); border:0; background:#fff; display:block; }
+
+      .cover-overlay{
+        position:absolute; inset:0; z-index:5;
+        background-image:
+          linear-gradient(to bottom, rgba(11,23,54,.85), rgba(11,23,54,.55)),
+          var(--cover-image);
+        background-size: cover, cover; background-position: center center; background-repeat: no-repeat;
+        cursor:pointer;
+      }
+
+      .panel{ display:flex; flex-direction:column; gap:16px; }
+      .cardx{
+        background:var(--glass); border:var(--ring); border-radius:16px; backdrop-filter:blur(8px) saturate(130%);
+        padding:16px 14px; color:#fff; box-shadow:0 14px 36px rgba(0,0,0,.22);
+      }
+      .hdr{ display:flex; align-items:center; gap:.6rem; font-weight:800; letter-spacing:-.01em; }
+      .btn-pill{ border-radius:999px; }
+      .is-active{ box-shadow:0 0 0 2px #fff inset; }
+      .c-doc{color:#185ABD} .c-sheet{color:#107C41} .c-form{color:#8b6cff}
+    </style>
+  </head>
+
+  <body>
+    <nav class="topbar" aria-label="Barra superior">
+      <div class="container-xxl d-flex align-items-center gap-2 py-2">
+        <a href={`${BASE}menu`} class="btn btn-outline-light btn-sm btn-pill">← Volver</a>
+        <a href={`${BASE}`} class="btn btn-outline-light btn-sm btn-pill">
+          <i class="bi bi-house-door"></i> Inicio
+        </a>
+      </div>
+    </nav>
+
+    <div class="container-xxl page-title-wrap">
+      <center><h1 class="h4 title mb-0">DOCUMENTO ONLINE</h1></center>
+    </div>
+
+    <main class="stage">
+      <img class="bg" src={fondoUrl} alt="Fondo" />
+      <div class="container-xxl work">
+        <div class="row g-3">
+          <!-- Visor -->
+          <div class="col-12 col-lg-8">
+            <div class="sheet-card">
+              <iframe
+                id="viewer"
+                class="sheet-frame"
+                src={SHEET_VIEW_URL}
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+                allow="fullscreen; clipboard-read; clipboard-write"
+                title="Visor de documentos">
+              </iframe>
+
+              <div
+                id="cover"
+                class="cover-overlay"
+                style={`--cover-image: url('${portadaUrl}')`}
+                role="button"
+                aria-label="Ocultar portada">
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel -->
+          <div class="col-12 col-lg-4">
+            <aside class="panel">
+              <!-- Documento -->
+              <div class="cardx">
+                <div class="hdr"><i class="bi bi-file-earmark-text c-doc"></i> Documento</div>
+                <p>Ver aquí o abrir en edición (pestaña nueva).</p>
+                <div class="d-flex gap-2 flex-wrap">
+                  <button type="button" class="btn btn-light btn-sm btn-pill" data-src={DOC_VIEW_URL}>Ver aquí</button>
+                  <a class="btn btn-outline-light btn-sm btn-pill" href={DOC_EDIT_URL} target="_blank" rel="noopener">Editar</a>
+                </div>
+              </div>
+
+              <!-- Hoja de cálculo -->
+              <div class="cardx">
+                <div class="hdr"><i class="bi bi-table c-sheet"></i> Hoja de cálculo</div>
+                <p>Ver aquí o abrir en edición (pestaña nueva).</p>
+                <div class="d-flex gap-2 flex-wrap">
+                  <button type="button" class="btn btn-light btn-sm btn-pill" data-src={SHEET_VIEW_URL}>Ver aquí</button>
+                  <a class="btn btn-outline-light btn-sm btn-pill" href={SHEET_EDIT_URL} target="_blank" rel="noopener">Editar</a>
+                </div>
+              </div>
+
+              <!-- Formulario (encuestas) -->
+              <div class="cardx">
+                <div class="hdr"><i class="bi bi-ui-checks-grid c-form"></i> Formulario (encuestas)</div>
+                <p>Responde o comparte encuestas en línea.</p>
+                <div class="d-flex gap-2 flex-wrap">
+                  <button type="button" class="btn btn-light btn-sm btn-pill" data-src={FORM_VIEW_URL}>Ver aquí</button>
+                  {FORM_EDIT_URL && (
+                    <a class="btn btn-outline-light btn-sm btn-pill" href={FORM_EDIT_URL} target="_blank" rel="noopener">Editar</a>
+                  )}
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script is:inline>
+      (function () {
+        const iframe = document.getElementById('viewer');
+        const btns = document.querySelectorAll('[data-src]');
+        const cover = document.getElementById('cover');
+
+        const removeCover = () => { if (cover && cover.parentNode) cover.parentNode.removeChild(cover); };
+
+        btns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const url = btn.getAttribute('data-src');
+            if (!url) return;
+            removeCover();
+            iframe.src = url;
+            btns.forEach(b => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+          });
+        });
+
+        if (cover) cover.addEventListener('click', removeCover);
+      })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

@@ -1,111 +1,161 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-import LoginForm from '../components/LoginForm.astro';
+import fallbackUrl from "../images/fondo.jpg?url";
+const BASE = import.meta.env.BASE_URL;
+const BG = "https://eldiarioderiobamba.com/wp-content/uploads/2020/04/pref.png";
+const REPORT_URL = "https://drive.google.com/drive/folders/1pCdLpMYkc0LuTLon9OdR9sefd0s9sJjd?usp=sharing";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
-const script = `
-  document.addEventListener('DOMContentLoaded', async () => {
-    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm');
-    
-    const supabase = createClient(
-      '${import.meta.env.PUBLIC_SUPABASE_URL}',
-      '${import.meta.env.PUBLIC_SUPABASE_ANON_KEY}'
-    );
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const errorText = document.getElementById('error');
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        errorText.textContent = error.message;
-      } else {
-        window.location.href = '/dashboard';
-      }
-    });
-  });
-`;
+const isServerAuthed =
+  Boolean(Astro.cookies.get("sb-access-token")?.value) &&
+  Boolean(Astro.cookies.get("sb-refresh-token")?.value);
+
+
+const SOCIAL = {
+  facebook: "https://www.facebook.com/PrefecturaChimborazo",
+  youtube:  "https://www.youtube.com/@hermeltayupandacuvi7806",
+  tiktok:   "https://www.tiktok.com/@hermeltayupandaprefecto?_t=8eU5CzH0OFJ&_r=1",
+};
 ---
-<!--h1>Iniciar sesión1</h1>
-<form id="login-form">
-  <input id="email" type="email" placeholder="Email" required />
-  <input id="password" type="password" placeholder="Contraseña" required />
-  <button type="submit">Entrar</button>
-  <p id="error" style="color: red;"></p>
-</form-->
-<!DOCTYPE html>
+
 <html lang="es">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Inicio | Chimborazo GAD</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Página Principal</title>
+
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
     <style>
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      :root{ --nav-h:64px; --radius:22px; --ring:1px solid rgba(255,255,255,.48); }
+      html,body{ margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+      .navbar.glass{ background:rgba(255,255,255,.16)!important; backdrop-filter:blur(10px) saturate(120%); border-bottom:1px solid rgba(0,0,0,.06); }
+      .pill{ border-radius:999px; padding:.5rem 1rem; }
+      .hero{ position:relative; isolation:isolate; min-height:100svh; padding-top:calc(var(--nav-h) + 24px); display:grid; place-items:start center; overflow:hidden; background:#0b1736; }
+      .hero>img.bg{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; z-index:0; pointer-events:none; }
+      .glass-card{ position:relative; z-index:1; width:min(920px,94vw); text-align:center; color:#111; background:rgba(255,255,255,.28); backdrop-filter:blur(8px) saturate(120%); border:var(--ring); border-radius:var(--radius); padding:clamp(16px,3vw,28px); box-shadow:0 18px 48px rgba(0,0,0,.18); margin-top:12vh; }
+      @media (max-width:991.98px){ .glass-card{ margin-top:8vh; } }
+
+
+      .social-btn{
+        width:40px; height:40px; border-radius:999px;
+        display:flex; align-items:center; justify-content:center;
+        border:1px solid rgba(0,0,0,.35);
+        background:rgba(255,255,255,.85);
+        transition:transform .15s ease, background .15s ease;
       }
-      body {
-        background-image: url('../images/Principal.PNG');
-        background-size: cover;
-        background-position: right center;
-        background-repeat: no-repeat;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        padding-left: 14rem;
-      }
-      .overlay {
-        background-color: rgba(0, 0, 0, 0.6);
-        padding: 3rem;
-        border-radius: 20px;
-        text-align: center;
-        color: white;
-        max-width: 400px;
-        width: 100%;
-        box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-      }
-      h1 {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-      }
-      .btn-group {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        margin-top: 2rem;
-      }
-      .btn {
-        padding: 0.75rem 1rem;
-        border: none;
-        border-radius: 10px;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        background-color: #0077cc;
-        color: white;
-        text-decoration: none;
-      }
-      .btn:hover {
-        background-color: #005fa3;
+      .social-btn i{ font-size:1.15rem; color:#111; }
+      .social-btn:hover{ transform:translateY(-2px); background:#fff; }
+
+
+      .social-btn.lg{ width:48px; height:48px; }
+      .social-btn.lg i{ font-size:1.35rem; }
+
+
+      footer.social-footer{
+        background:rgba(255,255,255,.6);
+        backdrop-filter:blur(8px) saturate(120%);
+        border-top:1px solid rgba(0,0,0,.08);
       }
     </style>
   </head>
-  <body>
-    <div class="overlay">
-      <h1>Bienvenido al GAD Provincial Chimborazo</h1>
-      <div class="btn-group">
-        <a href="/signin" class="btn">Iniciar Sesión</a>
-        <!--a href="/reporte" class="btn">Reporte</a-->
-        <a href="https://drive.google.com/drive/folders/1pCdLpMYkc0LuTLon9OdR9sefd0s9sJjd?usp=sharing"  target="_blank" class="btn"> Ver Reporte</a>
-      </div> 
+
+  <body data-base={BASE} data-auth={isServerAuthed ? "1" : "0"}>
+    <nav class="navbar navbar-expand-lg glass fixed-top">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href={BASE} style="color:#111;">PREFECTURA DE CHIMBORAZO</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-label="Menú">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
+            <li class="nav-item"><a class="btn btn-light btn-outline-dark pill" href="#inicio">Inicio</a></li>
+            <li class="nav-item"><a id="btnReporte" class="btn btn-light btn-outline-dark pill" href={REPORT_URL} target="_blank" rel="noopener">Reporte</a></li>
+            <li class="nav-item"><a id="btnDash" class="btn btn-light btn-outline-dark pill" href={`${BASE}menu`}>Dashboard</a></li>
+            <li class="nav-item ms-lg-2"><a id="btnAuth" class="btn btn-primary pill" href={`${BASE}signin`}>Iniciar sesión</a></li>
+          </ul>
+        </div>
       </div>
-    </div>
+    </nav>
+
+    <header id="inicio" class="hero">
+      <img class="bg" src={BG} alt="Fondo" loading="eager" decoding="async" onerror={`this.onerror=null; this.src='${fallbackUrl}';`} />
+      <div class="glass-card">
+        <h1 class="display-5 m-0">Bienvenidos</h1>
+      </div>
+    </header>
+
+  
+    <footer class="social-footer">
+      <div class="container py-4">
+        <div class="d-flex justify-content-center align-items-center gap-3">
+          <a class="social-btn lg" href={SOCIAL.facebook} target="_blank" rel="noopener" aria-label="Facebook">
+            <i class="bi bi-facebook"></i>
+          </a>
+          <a class="social-btn lg" href={SOCIAL.youtube} target="_blank" rel="noopener" aria-label="YouTube">
+            <i class="bi bi-youtube"></i>
+          </a>
+          <a class="social-btn lg" href={SOCIAL.tiktok} target="_blank" rel="noopener" aria-label="TikTok">
+            <i class="bi bi-tiktok"></i>
+          </a>
+        </div>
+      </div>
+    </footer>
+    <!-- Si quieres que quede SIEMPRE pegado: <footer class="social-footer fixed-bottom"> -->
+
+    <script is:inline>
+      (function () {
+        const AUTH_KEY = "auth:ok";
+        const base = document.body.dataset.base || "/";
+        const serverAuth = document.body.dataset.auth === "1";
+
+        if (serverAuth) localStorage.setItem(AUTH_KEY, "1");
+
+        const isAuth = () => localStorage.getItem(AUTH_KEY) === "1";
+
+        const btnAuth    = document.getElementById("btnAuth");
+        const btnDash    = document.getElementById("btnDash");
+        const btnReporte = document.getElementById("btnReporte");
+
+        function updateAuthUI() {
+          if (isAuth()) {
+            btnAuth.textContent = "Cerrar sesión";
+            btnAuth.href = "#";
+            btnAuth.onclick = (e) => {
+              e.preventDefault();
+              fetch(base + "api/auth/signout", { method: "POST" }).catch(()=>{});
+              localStorage.removeItem(AUTH_KEY);
+              location.href = base;
+            };
+          } else {
+            btnAuth.textContent = "Iniciar sesión";
+            btnAuth.href = base + "signin?next=" + encodeURIComponent(base);
+            btnAuth.onclick = null;
+          }
+        }
+
+        function guard(e, url, openNewTab) {
+          if (isAuth()) {
+            if (openNewTab) window.open(url, "_blank", "noopener");
+            else window.location.href = url;
+          } else {
+            e.preventDefault();
+            alert("Debes iniciar sesión");
+            window.location.href = base + "signin?next=" + encodeURIComponent(base);
+          }
+        }
+
+        btnDash.addEventListener("click",    (e) => guard(e, btnDash.getAttribute("href"), false));
+        btnReporte.addEventListener("click", (e) => guard(e, btnReporte.getAttribute("href"), true));
+
+        updateAuthUI();
+        document.addEventListener("visibilitychange", () => { if (!document.hidden) updateAuthUI(); });
+      })();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
-
-
